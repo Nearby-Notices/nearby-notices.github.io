@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nearby Notices</title>
+<meta name="description" content="Public notices near you in plain English, with food hygiene ratings on the map. Independent, not an official service.">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>
+  html, body { margin: 0; height: 100%; background: #f1f4f5; color: #24323a;
+               font: 17px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+  #app { position: fixed; inset: 0; width: 100%; height: 100%; border: 0; display: block; background: #f1f4f5; }
+  .fallback { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; padding: 20px; background: #f1f4f5; z-index: 1; }
+  .fallback[hidden] { display: none; }
+  .panel { max-width: 34rem; background: #fff; border: 1px solid #dde2e5; border-top: 4px solid #1f6f6d; border-radius: 12px; padding: 1.4rem 1.6rem;
+           box-shadow: 0 6px 20px rgba(16, 35, 38, .08); }
+  .panel h1 { font-size: 1.35rem; margin: 0 0 .5rem; color: #0f1a1f; }
+  .panel p { margin: 0 0 .8rem; }
+  .panel a { color: #1b62a8; font-weight: 600; }
+</style>
+</head>
+<body>
+<!-- The GitHub Pages front for Nearby Notices. It shows the live site in a frame, so the service can be reached
+     from networks that block newly registered domains. A search can be linked directly, for example
+     https://nearby-notices.github.io/?place=Inverness&distance=3&unit=mi -->
+<iframe id="app" title="Nearby Notices" allow="fullscreen"></iframe>
+<div class="fallback" id="fallback" hidden>
+  <div class="panel" role="status">
+    <h1>Nearby Notices is starting</h1>
+    <p>The service sleeps after a quiet spell and takes a few seconds to wake. If it does not appear, open it directly:</p>
+    <p><a href="https://nearbynotices.co.uk" rel="noopener">nearbynotices.co.uk</a><br>
+       <a href="https://nearby-notices.bluesea-79d4ea2e.uksouth.azurecontainerapps.io" rel="noopener">the same service on Microsoft Azure</a></p>
+  </div>
+</div>
+<script>
+(function () {
+  var APP = 'https://nearby-notices.bluesea-79d4ea2e.uksouth.azurecontainerapps.io';
+  var OK = [APP, 'https://nearbynotices.co.uk', 'https://www.nearbynotices.co.uk'];
+  var frame = document.getElementById('app'), fallback = document.getElementById('fallback'), ready = false;
+  // A search in this page's address is passed through, so a search can be shared as a github.io link.
+  var q = new URLSearchParams(location.search);
+  frame.src = APP + (q.get('place') ? '/search?' + q.toString() : '/');
+  window.addEventListener('message', function (e) {
+    if (OK.indexOf(e.origin) < 0 || !e.data || e.data.nn !== 'ready') { return; }
+    ready = true; fallback.hidden = true;
+    // Keep this page's address in step with the search shown, so a reload or a shared link opens the same search.
+    var path = String(e.data.path || '/');
+    var shown = path.indexOf('/search?') === 0 ? path.slice('/search'.length) : '';
+    if (shown !== location.search) { history.replaceState(null, '', location.pathname + shown); }
+  });
+  setTimeout(function () { if (!ready) { fallback.hidden = false; } }, 15000);
+})();
+</script>
+<noscript><p style="padding:20px">Nearby Notices: <a href="https://nearbynotices.co.uk">nearbynotices.co.uk</a></p></noscript>
+</body>
+</html>
